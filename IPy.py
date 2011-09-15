@@ -18,7 +18,7 @@ socket.setdefaulttimeout(60)
 
 class Conf:
     def __init__(self):
-        self.fileLocation="/opt/IPy/IPy.conf"
+        self.fileLocation="IPy.conf"
         self.mailServer=""
         self.mailServerAuth=""
         self.mailUser=""
