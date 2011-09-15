@@ -136,7 +136,6 @@ class IP:
             infile.close()
             return 1
         except:
-            infile.close()
             return 0
             
 class Test:
@@ -242,8 +241,6 @@ def run():
             #ip address was invalid do something
             print "there was a problem parsing the current IP exiting...."
 
-
-
 if __name__ == "__main__":
     if  len(sys.argv)==1:
         tst=Test()
@@ -252,8 +249,6 @@ if __name__ == "__main__":
             run()
         else:
             print res
-        
-        
     elif len(sys.argv)==2:
         args=['-c','-o','-C','-s']
         tst = Test()
@@ -264,28 +259,22 @@ if __name__ == "__main__":
             cIp.getCurrent
             print "Current IP: "+cIp.address
         if sys.argv[1]=="-C":
-           
             cfig.show()
-
         elif sys.argv[1]=="-o":
             oIp = IP()
             oIp.getLast()
             logger("RUN","The program was executed in get last IP mode\n")
             print "Last IP: "+oIp.address
         elif sys.argv[1]=="-s":
-           
             cfig.setup()
         elif sys.argv[1]=="-a":
-
             print header()
         elif sys.argv[1]=="-t":
             tst = Test()
-           
             if tst.result ==1:
                 print "test passed"
             else:
                 print tst.fault
-            
         elif sys.argv[1] not in args:
             print "Usage: ./IPy.py [option]"
             print ""
@@ -295,4 +284,3 @@ if __name__ == "__main__":
             print "[-o] Print last known external IP to screen"
             print "[-s] enter setup"
             print "[-a] Prints the about IPy info to screen"
-
