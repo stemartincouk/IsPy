@@ -4,7 +4,6 @@ __author__="stephen martin <me@stephen-martin.co.uk>"
 __date__ ="$Sep 10, 2011 10:50:31 AM$"
 versionNo ="1.0.1.1"
 
-
 import os
 import sys
 import smtplib
@@ -13,10 +12,8 @@ from urllib import urlopen
 import datetime
 socket.setdefaulttimeout(60)
 
-
-
-
 class Conf:
+
     def __init__(self):
         self.fileLocation="IsPy.conf"
         self.mailServer=""
@@ -110,11 +107,42 @@ class Conf:
         else:
             print "error saving to config file... exiting"
 
+class IP:
+    def __init__(self):
+        self.address =""
+    
+    def getCurrent(self):
+        self.address = urlopen("http://www.stephen-martin.co.uk/index.php/IPy/externalip").read()
+        
+    
+    def getLast(self):
+        try:
+            infile = open("/opt/IPy/IPy.dat","r")
+            self.address = infile.readline()
+            infile.close()
+        except:
+            print "file open failed :("
+    def testIp(self,ip):
+        try:
+            socket.inet_aton(ip)
+            return 1
+        except:
+            return 0
+    
+    def save(self,ip):
+        try:
+            infile = open("IsPy.dat","w")
+            infile.write(ip)
+            infile.close()
+            return 1
+        except:
+            infile.close()
+            return 0
+            
 class Test:
     def __init__(self):
         self.result=""
         self.fault=""
-
 
     def mail_test(self):
         cfig = Conf()
@@ -155,7 +183,6 @@ class Test:
         else:
             return 1
 
-
 def header():
     print "###################################################"
     print "IPy Version: "+versionNo
@@ -165,9 +192,6 @@ def header():
     print ""
     print "Written by Stephen Martin <me@stephen-martin.co.uk>"
   
-
-
-
 def sendMail(ip):
 
     cfig=Conf()
@@ -186,30 +210,6 @@ def sendMail(ip):
         print "failed to connect to server"
         logger("ERROR","Email failed to send to "+cfig.mailTo)
 
-def getCurrentIP():
-    ip = urlopen("http://www.stephen-martin.co.uk/index.php/IPy/externalip").read()
-    return ip
-
-def getLastIP():
-    try:
-        infile = open("/opt/IPy/IPy.dat","r")
-        oldIp = infile.readline()
-        infile.close()
-        return oldIp
-    except:
-        print "file open failed :("
-        return 0
-
-def saveIP(ip):
-    try:
-        infile = open("/opt/IPy/IPy.dat","w")
-        infile.write(ip)
-        infile.close()
-        return 1
-    except:
-        infile.close()
-        return 0
-
 def logger(type,text):
     now = datetime.datetime.now()
     logfile =open("/opt/IPy/IPy.log","a")
@@ -219,30 +219,28 @@ def logger(type,text):
 def run():
     cfig=Conf()
     logger("RUN","The program was executed in run mode\n")
-    if getLastIP():
-        oldIp = getLastIP()
-        print "old ip: "+oldIp
-
-        ip = getCurrentIP()
-
-        try:
-            socket.inet_aton(ip)
-            print "current ip: "+ip
-
-            if not oldIp == ip:
-                logger("IP","External IP Changed from "+oldIp+" to "+ip+"\n")
+    oIp = IP()
+    if oIp.getLast():
+        print "old ip: "+oIp.address
+        cIp =IP()
+        cIp.getCurrent()
+        if cIp.testIp(cIp.address)==1:
+            print "current ip: "+cIp.address
+            if not oIp.address == cIp.address:
+                logger("IP","External IP Changed from "+oIp.address+" to "+cIp.address+"\n")
                 print "Changed"
                 try:
-                    saveIP(ip)
-                    sendMail(ip)
+                    cIp.save(cIp.address)
+                    sendMail(cIp.address)
                     print "mail sent to:"+cfig.mailTo
                 except:
                     print "failed to send mail..."
             else:
                 logger("IP","External IP has not changed")
                 print "no change exiting"
-        except:
-            print "invalid "
+        else:
+            #ip address was invalid do something
+            print "there was a problem parsing the current IP exiting...."
 
 
 
@@ -262,15 +260,18 @@ if __name__ == "__main__":
         cfig = Conf()
         cfig.get()
         if sys.argv[1]=="-c" and tst.net_test()==1:
-          
-            print "Current IP: "+getCurrentIP()
+            cIp = IP()
+            cIp.getCurrent
+            print "Current IP: "+cIp.address
         if sys.argv[1]=="-C":
            
             cfig.show()
 
         elif sys.argv[1]=="-o":
+            oIp = IP()
+            oIp.getLast()
             logger("RUN","The program was executed in get last IP mode\n")
-            print "Last IP: "+getLastIP()
+            print "Last IP: "+oIp.address
         elif sys.argv[1]=="-s":
            
             cfig.setup()
