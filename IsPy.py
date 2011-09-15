@@ -50,12 +50,12 @@ class Conf:
     def save(self):
         try:
             cFile = open(self.fileLocation,"w")
-            cFile.write("[mailServer]=\""+self.mailServer+"\n")
-            cFile.write("[mailServerAuth]=\""+self.mailServerAuth+"\n")
-            cFile.write("[mailUser]=\""+self.mailUser+"\n")
-            cFile.write("[mailPass]=\""+self.mailPass+"\n")
-            cFile.write("[mailFrom]=\""+self.mailFrom+"\n")
-            cFile.write("[mailTo]=\""+self.mailTo+"\n")
+            cFile.write("[mailServer]=\""+self.mailServer+"\"\n")
+            cFile.write("[mailServerAuth]=\""+self.mailServerAuth+"\"\n")
+            cFile.write("[mailUser]=\""+self.mailUser+"\"\n")
+            cFile.write("[mailPass]=\""+self.mailPass+"\"\n")
+            cFile.write("[mailFrom]=\""+self.mailFrom+"\"\n")
+            cFile.write("[mailTo]=\""+self.mailTo+"\"\n")
             cFile.close()
             return 1
         except:
