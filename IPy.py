@@ -142,7 +142,7 @@ class Test:
         self.result="1"
         cfig = Conf()
         cfig.get()
-        if cfig.check() ==0:
+        if cfig.check()==0:
             
             self.fault="There was a problem with your config file please run IPy.oy -s"
             self.result=0
@@ -156,39 +156,6 @@ class Test:
             return 1
 
 
-
-
-
-def selfTest():
-    #check conf file
-    fail =0
-    fault =""
-    cfig = Conf()
-    if cfig.check()==0:
-        fail =1
-        fault = "email.conf failed test please run email.py -s\n"
-    #check intenet connection
-    ping = os.system("ping -c 1 www.google.co.uk > /dev/null")
-    if ping!=0:
-        fail = 1
-        fault=fault+"Intenet or DNS down\n"
-   
-    socket.setdefaulttimeout(10)
-    if fail!=1:
-        tst =Test()
-        if tst.mail_test()==0:
-            fault=fault+"Mailserver wont connect... check connection and config IPy -s"
-            fail=1
-    socket.setdefaulttimeout(60)
-    if fail==1:
-        logger("ERROR","Self test FAIL: "+fault)
-        print "Self test FAIL: "+fault
-        return fault
-    else:
-        return 1
-
-
-
 def header():
     print "###################################################"
     print "IPy Version: "+versionNo
@@ -199,40 +166,12 @@ def header():
     print "Written by Stephen Martin <me@stephen-martin.co.uk>"
   
 
-def setup():
-    cfig=Conf()
-    print "Welcome to setup"
-    print "To accept a [default] leave blank"
-    mailServer2 = raw_input("Mailserver host name:["+cfig.mailServer+"]")
-    if mailServer2 !="":
-        cfig.mailServer = mailServer2
-    
-    mailServerAuth2 = raw_input("Mailserver Authentication y/n:["+cfig.mailSeverAuth+"]")
-    if mailServerAuth2 !="":
-        cfig.mailSeverAuth= mailServerAuth2
-    if cfig.mailSeverAuth=="y":
-        mailUser2 = raw_input("Mailserver username:["+cfig.mailUser+"]")
-        if mailUser2 !="":
-
-            cfig.mailUser = mailUser2
-        mailPass2 = raw_input("Mailserver password:["+cfig.mailPass+"]")
-        if mailPass2 !="":
-            cfig.mailPass = mailPass2
-    mailFrom2 = raw_input("Mail From:["+cfig.mailFrom+"]")
-    if mailFrom2 !="":
-        cfig.mailFrom = mailFrom2
-    mailTo2 = raw_input("Mail To:["+cfig.mailTo+"]")
-    if mailTo2 !="":
-        conf['mailTo'] = mailTo2
-    saveConf(conf)
-    print "setup complete exiting...."
-
 
 
 def sendMail(ip):
 
     cfig=Conf()
-    head = 'To:' +conf['mailTo'] + '\n' + 'From: ' + cfig.mailFrom+ '\n' + 'Subject:External IP changed \n'
+    head = 'To:' +cfig.mailTo + '\n' + 'From: ' + cfig.mailFrom+ '\n' + 'Subject:External IP changed \n'
     msg = head + '\n Your IP address has changed to:'+ip+'  \n\n'
     try:
      
@@ -240,12 +179,12 @@ def sendMail(ip):
         if cfig.mailSeverAuth=="y":
            
             server2.login(cfig.mailUser,cfig.mailPass)
-        server2.sendmail(cfig.mailFrom,conf['mailTo'], msg)
+        server2.sendmail(cfig.mailFrom,cfig.mailTo, msg)
         server2.quit()
-        logger("Mail","Email successfully sent to "+conf['mailTo'])
+        logger("Mail","Email successfully sent to "+cfig.mailTo)
     except:
         print "failed to connect to server"
-        logger("ERROR","Email failed to send to "+conf['mailTo'])
+        logger("ERROR","Email failed to send to "+cfig.mailTo)
 
 def getCurrentIP():
     ip = urlopen("http://www.stephen-martin.co.uk/index.php/IPy/externalip").read()
@@ -296,12 +235,12 @@ def run():
                 try:
                     saveIP(ip)
                     sendMail(ip)
-                    print "mail sent to:"+conf['mailTo']
+                    print "mail sent to:"+cfig.mailTo
                 except:
                     print "failed to send mail..."
             else:
-                 logger("IP","External IP has not changed")
-                 print "no change exiting"
+                logger("IP","External IP has not changed")
+                print "no change exiting"
         except:
             print "invalid "
 
@@ -335,9 +274,6 @@ if __name__ == "__main__":
         elif sys.argv[1]=="-s":
            
             cfig.setup()
-        elif sys.argv[1]=="-r":
-            
-            print getConfig()
         elif sys.argv[1]=="-a":
 
             print header()
