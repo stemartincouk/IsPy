@@ -248,27 +248,6 @@ def header():
     print ""
     print "Written by Stephen Martin <me@stephen-martin.co.uk>"
   
-def sendMail(ip):
-
-    cfig=Conf()
-    cfig.get()
-    head = 'To:' +cfig.mailTo + '\n' + 'From: ' + cfig.mailFrom+ '\n' + 'Subject:External IP changed \n'
-    msg = head + '\n Your IP address has changed to:'+ip+'  \n\n'
-    try:
-        server2 = smtplib.SMTP(cfig.mailServer)
-        if cfig.mailServerAuth=="y":
-            server2.login(cfig.mailUser,cfig.mailPass)
-        server2.sendmail(cfig.mailFrom,cfig.mailTo, msg)
-        server2.quit()
-        log = Logger()
-        log.log("Mail", "Email successfully sent to "+cfig.mailTo)
-        
-        return 1
-    except smtplib.SMTPException,e:
-        print "failed to connect to mail server \n"+str(e)
-        log = Logger()
-        log.log("ERROR", "Email failed to send to "+cfig.mailTo)
-        return 0
 
 def run():
     cfig=Conf()
