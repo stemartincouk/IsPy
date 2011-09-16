@@ -118,11 +118,13 @@ class IP:
     
     def getLast(self):
         try:
-            infile = open("/opt/IPy/IPy.dat","r")
+            infile = open("IsPy.dat","r")
             self.address = infile.readline()
             infile.close()
-        except:
-            print "file open failed :("
+            return 1
+        except Exception, e:
+            print "file open failed :("+" "+e
+            return 0
     def testIp(self,ip):
         try:
             socket.inet_aton(ip)
@@ -146,16 +148,17 @@ class Test:
 
     def mail_test(self):
         cfig = Conf()
+        cfig.get()
        
         try:
             server = smtplib.SMTP(cfig.mailServer)
-            
+            #server.connect(cfig.mailServerAuth,25)
             if cfig.mailServerAuth=="y":
                 server.login(cfig.mailUser, cfig.mailPass)
             server.quit()
 
             return 1
-        except Exception, e:
+        except smtplib.SMTPException, e:
             print e
             return 0
 
@@ -175,12 +178,16 @@ class Test:
             
             self.fault="There was a problem with your config file please run IPy.oy -s"
             self.result=0
+        if self.net_test()==0:
+            self.result=0
+            print "net test failed"
+        
         if self.mail_test()==0:
             
             self.fault=self.fault+"There was a problem with your mailserver"
             self.result=0
         if self.result==0:
-            return self.fault
+            return 0
         else:
             return 1
 
@@ -196,32 +203,34 @@ def header():
 def sendMail(ip):
 
     cfig=Conf()
+    cfig.get()
     head = 'To:' +cfig.mailTo + '\n' + 'From: ' + cfig.mailFrom+ '\n' + 'Subject:External IP changed \n'
     msg = head + '\n Your IP address has changed to:'+ip+'  \n\n'
     try:
-     
         server2 = smtplib.SMTP(cfig.mailServer)
-        if cfig.mailSeverAuth=="y":
-           
+        if cfig.mailServerAuth=="y":
             server2.login(cfig.mailUser,cfig.mailPass)
         server2.sendmail(cfig.mailFrom,cfig.mailTo, msg)
         server2.quit()
         logger("Mail","Email successfully sent to "+cfig.mailTo)
-    except:
-        print "failed to connect to server"
+        return 1
+    except smtplib.SMTPException,e:
+        print "failed to connect to mail server \n"+str(e)
         logger("ERROR","Email failed to send to "+cfig.mailTo)
+        return 0
 
 def logger(type,text):
     now = datetime.datetime.now()
-    logfile =open("/opt/IPy/IPy.log","a")
+    logfile =open("IsPy.log","a")
     logfile.write(now.strftime("%Y-%m-%d %H:%M")+" "+type+": "+text+"\n")
     logfile.close()
 
 def run():
     cfig=Conf()
+    cfig.get()
     logger("RUN","The program was executed in run mode\n")
     oIp = IP()
-    if oIp.getLast():
+    if oIp.getLast()==1:
         print "old ip: "+oIp.address
         cIp =IP()
         cIp.getCurrent()
@@ -232,10 +241,13 @@ def run():
                 print "Changed"
                 try:
                     cIp.save(cIp.address)
+                except Exception,e:
+                    print "Failed to save current IP to file"+" "+e
+                try:
                     sendMail(cIp.address)
                     print "mail sent to:"+cfig.mailTo
-                except:
-                    print "failed to send mail..."
+                except Exception,e:
+                    print "failed to send mail..."+str(e)
             else:
                 logger("IP","External IP has not changed")
                 print "no change exiting"
@@ -247,9 +259,10 @@ if __name__ == "__main__":
     if  len(sys.argv)==1:
         tst=Test()
         res = tst.self_test()
-        if tst.result==1:
+        if tst.self_test()==1:
             run()
         else:
+
             print res
     elif len(sys.argv)==2:
         args=['-c','-o','-C','-s']
@@ -258,7 +271,7 @@ if __name__ == "__main__":
         cfig.get()
         if sys.argv[1]=="-c" and tst.net_test()==1:
             cIp = IP()
-            cIp.getCurrent
+            cIp.getCurrent()
             print "Current IP: "+cIp.address
         if sys.argv[1]=="-C":
             cfig.show()
