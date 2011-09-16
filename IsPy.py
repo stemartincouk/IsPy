@@ -140,6 +140,36 @@ class IP:
             return 1
         except:
             return 0
+
+class Mailer:
+    def __init__(self):
+        self.mailTo =""
+        self.mailFrom =""
+        self.subject = ""
+        self.body = ""
+    def send(self):
+        cfig=Conf()
+        cfig.get()
+        head = 'To:' +self.mailTo + '\n' + 'From: ' + self.mailFrom+ '\n' + 'Subject:'+self.subject+' \n'
+        msg = head + self.body+"\n\n"
+        try:
+            server2 = smtplib.SMTP(cfig.mailServer)
+            if cfig.mailServerAuth=="y":
+                server2.login(cfig.mailUser,cfig.mailPass)
+            server2.sendmail(cfig.mailFrom,cfig.mailTo, msg)
+            server2.quit()
+            log = Logger()
+            log.log("Mail", "Email successfully sent to "+cfig.mailTo)
+            
+            return 1
+        except smtplib.SMTPException,e:
+            print "failed to connect to mail server \n"+str(e)
+            log = Logger()
+            log.log("ERROR", "Email failed to send to "+cfig.mailTo)
+            return 0
+        
+        
+        
             
 class Test:
     def __init__(self):
@@ -259,8 +289,13 @@ def run():
                     cIp.save(cIp.address)
                 except Exception,e:
                     print "Failed to save current IP to file"+" "+e
+                mail = Mailer()
+                mail.mailTo=cfig.mailTo
+                mail.mailFrom=cfig.mailFrom
+                mail.subject="External IP address has changed"
+                mail.body ="Your external IP address has changed from "+oIp.address+" to: "+cIp.address +"\n"
                 try:
-                    sendMail(cIp.address)
+                    mail.send()
                     print "mail sent to:"+cfig.mailTo
                 except Exception,e:
                     print "failed to send mail..."+str(e)
