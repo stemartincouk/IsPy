@@ -191,6 +191,24 @@ class Test:
         else:
             return 1
 
+class Logger:
+    def __init__(self):
+        
+        self.type =""
+        self.text =""
+        self.time = ""
+        
+    
+    def log(self,logType,logText):
+        now = datetime.datetime.now()
+        self.time = now.strftime("%Y-%m-%d %H:%M")
+        self.type = logType
+        self.text = logText
+        logfile =open("IsPy.log","a")
+        logfile.write(self.time+" "+self.type+": "+self.text+"\n")
+        logfile.close()
+        
+        
 def header():
     print "###################################################"
     print "IPy Version: "+versionNo
@@ -212,23 +230,21 @@ def sendMail(ip):
             server2.login(cfig.mailUser,cfig.mailPass)
         server2.sendmail(cfig.mailFrom,cfig.mailTo, msg)
         server2.quit()
-        logger("Mail","Email successfully sent to "+cfig.mailTo)
+        log = Logger()
+        log.log("Mail", "Email successfully sent to "+cfig.mailTo)
+        
         return 1
     except smtplib.SMTPException,e:
         print "failed to connect to mail server \n"+str(e)
-        logger("ERROR","Email failed to send to "+cfig.mailTo)
+        log = Logger()
+        log.log("ERROR", "Email failed to send to "+cfig.mailTo)
         return 0
-
-def logger(type,text):
-    now = datetime.datetime.now()
-    logfile =open("IsPy.log","a")
-    logfile.write(now.strftime("%Y-%m-%d %H:%M")+" "+type+": "+text+"\n")
-    logfile.close()
 
 def run():
     cfig=Conf()
     cfig.get()
-    logger("RUN","The program was executed in run mode\n")
+    log = Logger()
+    log.log("RUN","The program was executed in run mode\n")
     oIp = IP()
     if oIp.getLast()==1:
         print "old ip: "+oIp.address
@@ -237,7 +253,7 @@ def run():
         if cIp.testIp(cIp.address)==1:
             print "current ip: "+cIp.address
             if not oIp.address == cIp.address:
-                logger("IP","External IP Changed from "+oIp.address+" to "+cIp.address+"\n")
+                log.log("IP","External IP Changed from "+oIp.address+" to "+cIp.address+"\n")
                 print "Changed"
                 try:
                     cIp.save(cIp.address)
@@ -249,7 +265,7 @@ def run():
                 except Exception,e:
                     print "failed to send mail..."+str(e)
             else:
-                logger("IP","External IP has not changed")
+                log.log("IP","External IP has not changed")
                 print "no change exiting"
         else:
             #ip address was invalid do something
@@ -278,7 +294,9 @@ if __name__ == "__main__":
         elif sys.argv[1]=="-o":
             oIp = IP()
             oIp.getLast()
-            logger("RUN","The program was executed in get last IP mode\n")
+            log=Logger()
+            log.log("RUN","The program was executed in get last IP mode\n")
+           
             print "Last IP: "+oIp.address
         elif sys.argv[1]=="-s":
             cfig.setup()
