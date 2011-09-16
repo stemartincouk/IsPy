@@ -1,5 +1,6 @@
 #!/usr/bin/python
-
+# Copyright 2011, Stephen Martin
+# This program is distributed under the terms of the GNU General Public License 
 __author__="stephen martin <me@stephen-martin.co.uk>"
 __date__ ="$Sep 10, 2011 10:50:31 AM$"
 versionNo ="1.0.1.1"
