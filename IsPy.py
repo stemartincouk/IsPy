@@ -149,13 +149,14 @@ class Test:
        
         try:
             server = smtplib.SMTP(cfig.mailServer)
-
-            if cfig.mailSeverAuth=="y":
+            
+            if cfig.mailServerAuth=="y":
                 server.login(cfig.mailUser, cfig.mailPass)
             server.quit()
 
             return 1
-        except:
+        except Exception, e:
+            print e
             return 0
 
     def net_test(self):
