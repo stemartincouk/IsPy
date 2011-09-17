@@ -1,0 +1,23 @@
+# Copyright 2011, Stephen Martin
+# This program is distributed under the terms of the GNU General Public License 
+
+IsPy is a External IP monitor, it will monitor your external IP and email you if it has changed.
+
+## Install
+
+Tested on Fedora 15 with Python 2.7.1
+
+IsPy can be run from its containing folder with no need for any extra libraries.  Its been designed to run from a cronjob but can be run with output from the terminal to.  
+
+## Usage
+
+IsPy can be run with just ./IsPy.py for normal output or it can be run with the following arguments
+
+    Usage: ./IPy.py [option]
+
+    [Options]
+    [-c] Print current external IP to screen
+    [-C] Print current config to screen
+    [-o] Print last known external IP to screen
+    [-s] enter setup
+    [-a] Prints the about IPy info to screen
