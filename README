@@ -5,6 +5,10 @@ IsPy is a External IP monitor, it will monitor your external IP and email you if
 
 ## Install
 
+!!! Important !!!!
+
+manually edit the variable "directory" in IsPy.py to reference the directory you have placed the files eg. /opt/IsPy/
+
 Tested on Fedora 15 with Python 2.7.1
 
 IsPy can be run from its containing folder with no need for any extra libraries.  Its been designed to run from a cronjob but can be run with output from the terminal to.  
