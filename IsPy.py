@@ -4,6 +4,7 @@
 __author__="stephen martin <me@stephen-martin.co.uk>"
 __date__ ="$Sep 10, 2011 10:50:31 AM$"
 versionNo ="1.0.1.1"
+directory = "/opt/IsPy/"
 
 import os
 import sys
@@ -16,7 +17,7 @@ socket.setdefaulttimeout(60)
 class Conf:
 
     def __init__(self):
-        self.fileLocation="IsPy.conf"
+        self.fileLocation=directory+"IsPy.conf"
         self.mailServer=""
         self.mailServerAuth=""
         self.mailUser=""
@@ -118,12 +119,12 @@ class IP:
     
     def getLast(self):
         try:
-            infile = open("IsPy.dat","r")
+            infile = open(directory+"IsPy.dat","r")
             self.address = infile.readline()
             infile.close()
             return 1
         except Exception, e:
-            print "file open failed :("+" "+e
+            print "file open failed :("+" "+str(e)
             return 0
     def testIp(self,ip):
         try:
@@ -134,7 +135,7 @@ class IP:
     
     def save(self,ip):
         try:
-            infile = open("IsPy.dat","w")
+            infile = open(directory+"IsPy.dat","w")
             infile.write(ip)
             infile.close()
             return 1
@@ -234,7 +235,7 @@ class Logger:
         self.time = now.strftime("%Y-%m-%d %H:%M")
         self.type = logType
         self.text = logText
-        logfile =open("IsPy.log","a")
+        logfile =open(directory+"IsPy.log","a")
         logfile.write(self.time+" "+self.type+": "+self.text+"\n")
         logfile.close()
         
